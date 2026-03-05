@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 public class ClientMain {
     public static void main(String[] args) {
         String baseUrl = System.getProperty("api.baseUrl", "http://localhost:8080");
+        UiTheme.applyLookAndFeel();
 
         SwingUtilities.invokeLater(() -> {
             ApiClient apiClient = new ApiClient(baseUrl);
