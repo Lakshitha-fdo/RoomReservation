@@ -1,0 +1,99 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class User {
+  -username: String
+  -password: String
+}
+
+class Reservation {
+  -reservationId: String
+  -guestName: String
+  -address: String
+  -contactNumber: String
+  -roomType: RoomType
+  -checkInDate: LocalDate
+  -checkOutDate: LocalDate
+}
+
+class Bill {
+  -reservationId: String
+  -nights: long
+  -nightlyRate: double
+  -total: double
+}
+
+enum RoomType {
+  STANDARD
+  DELUXE
+  SUITE
+}
+
+class DatabaseConnectionManager {
+  -instance: DatabaseConnectionManager
+  -dbUrl: String
+  +getInstance(): DatabaseConnectionManager
+  +getConnection(): Connection
+}
+
+interface UserDao {
+  +isValidUser(username, password): boolean
+}
+
+interface ReservationDao {
+  +addReservation(reservation): boolean
+  +findById(id): Optional<Reservation>
+  +existsById(id): boolean
+}
+
+class JdbcUserDao
+class JdbcReservationDao
+
+class AuthService {
+  +login(username, password): ServiceResult<Void>
+}
+
+class ReservationService {
+  +addReservation(reservation): ServiceResult<Void>
+  +findById(id): ServiceResult<Reservation>
+}
+
+class BillingService {
+  +generateBill(id): ServiceResult<Bill>
+}
+
+class ApiServer
+class ApiClient
+
+class LoginController
+class ReservationController
+class BillingController
+
+class LoginView
+class MainMenuView
+class ReservationFormDialog
+class ViewReservationDialog
+class BillDialog
+
+Reservation --> RoomType
+BillingService --> ReservationService
+ReservationService --> ReservationDao
+AuthService --> UserDao
+JdbcUserDao ..|> UserDao
+JdbcReservationDao ..|> ReservationDao
+JdbcUserDao --> DatabaseConnectionManager
+JdbcReservationDao --> DatabaseConnectionManager
+ApiServer --> AuthService
+ApiServer --> ReservationService
+ApiServer --> BillingService
+ApiClient --> ApiServer : HTTP
+LoginController --> ApiClient
+ReservationController --> ApiClient
+BillingController --> ApiClient
+LoginView --> LoginController
+MainMenuView --> ReservationController
+MainMenuView --> BillingController
+ReservationFormDialog --> ReservationController
+ViewReservationDialog --> ReservationController
+BillDialog --> BillingController
+@enduml

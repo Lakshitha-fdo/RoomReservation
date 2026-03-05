@@ -1,0 +1,34 @@
+@startuml
+actor Staff
+participant "LoginView" as LV
+participant "ReservationFormDialog" as RV
+participant "ReservationController" as RC
+participant "ApiClient" as AC
+participant "ApiServer" as AS
+participant "ReservationService" as RS
+participant "JdbcReservationDao" as DAO
+database "SQLite DB" as DB
+
+Staff -> LV : Login(admin,1234)
+LV -> AC : POST /api/login
+AC -> AS : HTTP request
+AS --> AC : 200 success
+AC --> LV : login success
+
+Staff -> RV : Enter reservation data
+RV -> RC : addReservation(reservation)
+RC -> AC : POST /api/reservations
+AC -> AS : HTTP request
+AS -> RS : addReservation()
+RS -> DAO : existsById(id)
+DAO -> DB : SELECT count(*)
+DB --> DAO : 0
+RS -> DAO : addReservation()
+DAO -> DB : INSERT reservation
+DB --> DAO : inserted
+DAO --> RS : true
+RS --> AS : success
+AS --> AC : 201 Created
+AC --> RC : success
+RC --> RV : show confirmation
+@enduml
