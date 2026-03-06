@@ -1,9 +1,9 @@
 package com.oceanview.model;
 
 public enum RoomType {
-    STANDARD(100.0),
-    DELUXE(150.0),
-    SUITE(250.0);
+    STANDARD(2000.0),
+    DELUXE(3500.0),
+    SUITE(4500.0);
 
     private final double nightlyRate;
 

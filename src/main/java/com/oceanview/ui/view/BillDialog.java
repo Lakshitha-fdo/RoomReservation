@@ -70,8 +70,8 @@ public class BillDialog extends JDialog {
             currentBill[0] = bill;
             reservationNoValue.setText(bill.getReservationId());
             nightsValue.setText(String.valueOf(bill.getNights()));
-            rateValue.setText("$" + String.format("%.2f", bill.getNightlyRate()) + " per night");
-            totalValue.setText("$" + String.format("%.2f", bill.getTotal()));
+            rateValue.setText("LKR" + String.format("%.2f", bill.getNightlyRate()) + " per night");
+            totalValue.setText("LKR" + String.format("%.2f", bill.getTotal()));
         });
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -102,8 +102,8 @@ public class BillDialog extends JDialog {
                 + "----------------------------------------\n"
                 + "Reservation No: " + bill.getReservationId() + "\n"
                 + "Nights: " + bill.getNights() + "\n"
-                + "Room Rate: $" + String.format("%.2f", bill.getNightlyRate()) + " per night\n"
-                + "Total Amount: $" + String.format("%.2f", bill.getTotal()) + "\n"
+                + "Room Rate: LKR" + String.format("%.2f", bill.getNightlyRate()) + " per night\n"
+                + "Total Amount: LKR" + String.format("%.2f", bill.getTotal()) + "\n"
                 + "----------------------------------------\n"
                 + "Thank you.\n";
 
