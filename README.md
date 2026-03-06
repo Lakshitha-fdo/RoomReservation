@@ -1,6 +1,6 @@
 # Ocean View Resort - Online Room Reservation System (CIS6003)
 
-This project is a framework-free Java implementation of an Online Room Reservation System for **Ocean View Resort**.
+This project is a Java implementation of an Online Room Reservation System for **Ocean View Resort**.
 
 Technology choices:
 - Core Java 17+
@@ -8,9 +8,7 @@ Technology choices:
 - JDBC with SQLite (data storage)
 - Built-in `com.sun.net.httpserver.HttpServer` (REST-like web services)
 - JUnit 5 (automated testing)
-
-No Spring, Hibernate, Jakarta EE frameworks, or external web frameworks are used.
-
+ 
 ## Features
 
 - Login with username and password (`admin` / `1234` seeded)
