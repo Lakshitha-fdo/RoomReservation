@@ -55,7 +55,7 @@ Use Maven Wrapper (no local Maven required):
 ## Run API Server
 
 ```powershell
-.\mvnw.cmd exec:java -Dexec.mainClass=com.oceanview.api.ServerMain
+.\mvnw.cmd "-Dexec.mainClass=com.oceanview.api.ServerMain" exec:java
 ```
 
 Default API port is `8080`.
@@ -63,7 +63,7 @@ Default API port is `8080`.
 Override port:
 
 ```powershell
-.\mvnw.cmd exec:java -Dexec.mainClass=com.oceanview.api.ServerMain -Dserver.port=9090
+.\mvnw.cmd "-Dexec.mainClass=com.oceanview.api.ServerMain" "-Dserver.port=9090" exec:java
 ```
 
 ## Run Desktop Client
@@ -71,19 +71,19 @@ Override port:
 Start server first, then in another terminal:
 
 ```powershell
-.\mvnw.cmd exec:java -Dexec.mainClass=com.oceanview.ui.view.ClientMain
+.\mvnw.cmd "-Dexec.mainClass=com.oceanview.ui.view.ClientMain" exec:java
 ```
 
 If server is not on localhost:8080, set base URL:
 
 ```powershell
-.\mvnw.cmd exec:java -Dexec.mainClass=com.oceanview.ui.view.ClientMain -Dapi.baseUrl=http://localhost:9090
+.\mvnw.cmd "-Dexec.mainClass=com.oceanview.ui.view.ClientMain" "-Dapi.baseUrl=http://localhost:9090" exec:java
 ```
 
 ## One-Command Demo (Server + UI)
 
 ```powershell
-.\mvnw.cmd exec:java -Dexec.mainClass=com.oceanview.ApplicationMain
+.\mvnw.cmd "-Dexec.mainClass=com.oceanview.ApplicationMain" exec:java
 ```
 
 ## API Endpoints
@@ -115,7 +115,7 @@ Render with any PlantUML-compatible tool.
 ## Notes
 
 - Room rates:
-  - `STANDARD = 100`
-  - `DELUXE = 150`
-  - `SUITE = 250`
+  - `STANDARD = 2000`
+  - `DELUXE = 3500`
+  - `SUITE = 4500`
 - Date format in UI/API: `YYYY-MM-DD`

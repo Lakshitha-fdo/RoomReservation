@@ -20,12 +20,16 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.time.LocalDate;
 
+
 public class ReservationFormDialog extends JDialog {
     public ReservationFormDialog(JFrame parent, ReservationController reservationController) {
         super(parent, "Add Reservation", true);
         setSize(UiTheme.DIALOG_WIDTH, UiTheme.DIALOG_HEIGHT);
         setLocationRelativeTo(parent);
         setResizable(false);
+        
+        LocalDate today = LocalDate.now();
+        LocalDate tomorrow = today.plusDays(1);
 
         JPanel container = new JPanel(new BorderLayout(12, 12));
         UiTheme.addPanelPadding(container);
@@ -35,8 +39,8 @@ public class ReservationFormDialog extends JDialog {
         JTextField addressField = new JTextField();
         JTextField contactField = new JTextField();
         JComboBox<RoomType> roomTypeCombo = new JComboBox<>(RoomType.values());
-        JTextField checkInField = new JTextField("2025-11-01");
-        JTextField checkOutField = new JTextField("2025-11-02");
+        JTextField checkInField = new JTextField(today.toString());
+        JTextField checkOutField = new JTextField(tomorrow.toString());
         UiTheme.styleTextField(reservationIdField);
         UiTheme.styleTextField(guestNameField);
         UiTheme.styleTextField(addressField);
