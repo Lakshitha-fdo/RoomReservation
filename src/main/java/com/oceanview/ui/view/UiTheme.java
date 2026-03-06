@@ -7,6 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -58,6 +59,7 @@ public final class UiTheme {
     }
 
     public static void styleButton(JButton button) {
+        button.setUI(new BasicButtonUI());
         button.setFont(BUTTON_FONT);
         button.setPreferredSize(BUTTON_SIZE);
         button.setFocusPainted(false);
@@ -65,7 +67,9 @@ public final class UiTheme {
         button.setForeground(BUTTON_TEXT);
         button.setOpaque(true);
         button.setContentAreaFilled(true);
-        button.setBorder(BorderFactory.createLineBorder(new Color(9, 46, 78), 1));
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(9, 46, 78), 1),
+                BorderFactory.createEmptyBorder(8, 14, 8, 14)));
         button.setRolloverEnabled(true);
 
         for (var listener : button.getMouseListeners()) {
