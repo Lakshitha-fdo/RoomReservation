@@ -14,6 +14,9 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.print.PrinterException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class BillDialog extends JDialog {
     public BillDialog(JFrame parent, BillingController billingController) {
@@ -34,6 +37,7 @@ public class BillDialog extends JDialog {
         JLabel nightsValue = new JLabel("-");
         JLabel rateValue = new JLabel("-");
         JLabel totalValue = new JLabel("-");
+        Bill[] currentBill = new Bill[1];
 
         JPanel top = new JPanel(new BorderLayout(8, 8));
         top.add(new JLabel("Reservation Number:"), BorderLayout.WEST);
@@ -58,10 +62,12 @@ public class BillDialog extends JDialog {
                 nightsValue.setText("-");
                 rateValue.setText("-");
                 totalValue.setText("-");
+                currentBill[0] = null;
                 return;
             }
 
             Bill bill = result.data();
+            currentBill[0] = bill;
             reservationNoValue.setText(bill.getReservationId());
             nightsValue.setText(String.valueOf(bill.getNights()));
             rateValue.setText("$" + String.format("%.2f", bill.getNightlyRate()) + " per night");
@@ -69,14 +75,50 @@ public class BillDialog extends JDialog {
         });
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton printButton = new JButton("Print Bill");
         JButton closeButton = new JButton("Close");
+        UiTheme.styleButton(printButton);
         UiTheme.styleButton(closeButton);
+        printButton.addActionListener(e -> printBill(currentBill[0]));
         closeButton.addActionListener(e -> dispose());
+        bottom.add(printButton);
         bottom.add(closeButton);
 
         container.add(top, BorderLayout.NORTH);
         container.add(detailPanel, BorderLayout.CENTER);
         container.add(bottom, BorderLayout.SOUTH);
         add(container);
+    }
+
+    private void printBill(Bill bill) {
+        if (bill == null) {
+            JOptionPane.showMessageDialog(this, "Generate a bill first.", "Print Bill", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String receipt = "Ocean View Resort\n"
+                + "Room Reservation Bill\n"
+                + "Printed: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) + "\n"
+                + "----------------------------------------\n"
+                + "Reservation No: " + bill.getReservationId() + "\n"
+                + "Nights: " + bill.getNights() + "\n"
+                + "Room Rate: $" + String.format("%.2f", bill.getNightlyRate()) + " per night\n"
+                + "Total Amount: $" + String.format("%.2f", bill.getTotal()) + "\n"
+                + "----------------------------------------\n"
+                + "Thank you.\n";
+
+        javax.swing.JTextArea printerArea = new javax.swing.JTextArea(receipt);
+        printerArea.setFont(UiTheme.BODY_FONT);
+
+        try {
+            boolean printed = printerArea.print();
+            if (printed) {
+                JOptionPane.showMessageDialog(this, "Bill sent to printer.", "Print Bill", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Printing cancelled.", "Print Bill", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (PrinterException e) {
+            JOptionPane.showMessageDialog(this, "Print failed: " + e.getMessage(), "Print Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

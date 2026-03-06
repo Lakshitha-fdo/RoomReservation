@@ -4,6 +4,7 @@ import com.oceanview.ui.controller.BillingController;
 import com.oceanview.ui.controller.ReservationController;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,17 +38,17 @@ public class MainMenuView extends JFrame {
         JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
         JButton addReservationButton = new JButton("1. Add Reservation");
         UiTheme.styleButton(addReservationButton);
-        addReservationButton.addActionListener(e -> new ReservationFormDialog(this, reservationController).setVisible(true));
+        addReservationButton.addActionListener(e -> openDialog(new ReservationFormDialog(this, reservationController)));
         panel.add(addReservationButton);
 
         JButton viewReservationButton = new JButton("2. View Reservation");
         UiTheme.styleButton(viewReservationButton);
-        viewReservationButton.addActionListener(e -> new ViewReservationDialog(this, reservationController).setVisible(true));
+        viewReservationButton.addActionListener(e -> openDialog(new ViewReservationDialog(this, reservationController)));
         panel.add(viewReservationButton);
 
         JButton billButton = new JButton("3. Calculate Bill");
         UiTheme.styleButton(billButton);
-        billButton.addActionListener(e -> new BillDialog(this, billingController).setVisible(true));
+        billButton.addActionListener(e -> openDialog(new BillDialog(this, billingController)));
         panel.add(billButton);
 
         JButton helpButton = new JButton("4. Help");
@@ -81,5 +82,15 @@ public class MainMenuView extends JFrame {
 
         container.add(panel, BorderLayout.CENTER);
         add(container);
+    }
+
+    private void openDialog(JDialog dialog) {
+        setVisible(false);
+        try {
+            dialog.setVisible(true);
+        } finally {
+            setVisible(true);
+            toFront();
+        }
     }
 }
