@@ -10,6 +10,8 @@ import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public final class UiTheme {
     public static final int WINDOW_WIDTH = 560;
@@ -24,6 +26,9 @@ public final class UiTheme {
 
     private static final Dimension FIELD_SIZE = new Dimension(290, 32);
     private static final Dimension BUTTON_SIZE = new Dimension(150, 36);
+    private static final Color BUTTON_BG = new Color(15, 76, 129);
+    private static final Color BUTTON_BG_HOVER = new Color(10, 58, 99);
+    private static final Color BUTTON_TEXT = Color.WHITE;
 
     private UiTheme() {
     }
@@ -56,8 +61,19 @@ public final class UiTheme {
         button.setFont(BUTTON_FONT);
         button.setPreferredSize(BUTTON_SIZE);
         button.setFocusPainted(false);
-        button.setBackground(new Color(17, 96, 156));
-        button.setForeground(Color.WHITE);
+        button.setBackground(BUTTON_BG);
+        button.setForeground(BUTTON_TEXT);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBorder(BorderFactory.createLineBorder(new Color(9, 46, 78), 1));
+        button.setRolloverEnabled(true);
+
+        for (var listener : button.getMouseListeners()) {
+            if (listener.getClass().getName().contains("UiTheme")) {
+                button.removeMouseListener(listener);
+            }
+        }
+        button.addMouseListener(new ButtonHoverListener());
     }
 
     public static void styleResultArea(JTextArea textArea, int rows, int cols) {
@@ -73,5 +89,23 @@ public final class UiTheme {
 
     public static void addPanelPadding(JComponent component) {
         component.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+    }
+
+    private static final class ButtonHoverListener extends MouseAdapter {
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            if (e.getComponent() instanceof JButton button && button.isEnabled()) {
+                button.setBackground(BUTTON_BG_HOVER);
+                button.setForeground(BUTTON_TEXT);
+            }
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            if (e.getComponent() instanceof JButton button && button.isEnabled()) {
+                button.setBackground(BUTTON_BG);
+                button.setForeground(BUTTON_TEXT);
+            }
+        }
     }
 }
