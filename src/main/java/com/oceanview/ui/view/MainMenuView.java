@@ -41,12 +41,12 @@ public class MainMenuView extends JFrame {
         addReservationButton.addActionListener(e -> openDialog(new ReservationFormDialog(this, reservationController)));
         panel.add(addReservationButton);
 
-        JButton viewReservationButton = new JButton("2. View Reservation");
+        JButton viewReservationButton = new JButton("2. Manage Reservations");
         UiTheme.styleButton(viewReservationButton);
         viewReservationButton.addActionListener(e -> openDialog(new ViewReservationDialog(this, reservationController)));
         panel.add(viewReservationButton);
 
-        JButton billButton = new JButton("3. Calculate Bill");
+        JButton billButton = new JButton("3. Print Bill");
         UiTheme.styleButton(billButton);
         billButton.addActionListener(e -> openDialog(new BillDialog(this, billingController)));
         panel.add(billButton);
@@ -56,9 +56,9 @@ public class MainMenuView extends JFrame {
         helpButton.addActionListener(e -> JOptionPane.showMessageDialog(
                 this,
                 "1. Login using username and password\n"
-                        + "2. Add reservation with required details\n"
-                        + "3. View reservation by reservation number\n"
-                        + "4. Calculate and print bill\n"
+                        + "2. Add reservation with auto-generated reservation number\n"
+                        + "3. Manage reservations using search, pagination, and inline updates\n"
+                        + "4. Generate and print a formatted bill\n"
                         + "5. Exit safely from menu",
                 "Help",
                 JOptionPane.INFORMATION_MESSAGE));
