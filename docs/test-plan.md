@@ -27,7 +27,8 @@ JUnit 5 is used for all automated tests.
   - Check-in: `2025-11-01`
   - Check-out: `2025-11-03`
   - Expected nights: `2`
-  - Expected total: `2 * 150 = 300`
+  - Expected nightly rate: `3500`
+  - Expected total: `2 * 3500 = 7000`
 
 ## Automated Test Cases
 
@@ -35,7 +36,7 @@ JUnit 5 is used for all automated tests.
 |---|---|---|---|
 | UT-01 | DateUtil | 2025-11-01 to 2025-11-05 | Nights = 4 |
 | UT-02 | DateUtil | same check-in/check-out | throws IllegalArgumentException |
-| UT-03 | BillCalculator | nights=2, rate=100 | total=200 |
+| UT-03 | BillCalculator | nights=2, rate=3500 | total=7000 |
 | UT-04 | ValidationUtil | invalid fields/contact/date | validation errors returned |
 | IT-01 | ReservationDao | insert + find by ID | row persisted and fetched |
 | IT-02 | API | login/add/view/bill flow | all operations succeed |
@@ -56,7 +57,7 @@ A TDD-friendly sequence was followed:
 3. Login with `admin/1234`.
 4. Add reservation with valid data.
 5. Search reservation by ID and verify details.
-6. Generate bill and verify nights/rate/total.
+6. Generate bill and verify nights=`2`, rate=`3500`, total=`7000`.
 7. Try invalid inputs:
    - non-numeric contact
    - checkout before checkin

@@ -411,9 +411,9 @@ These improvements would move the project from prototype-level academic solution
 
 ### 10.2 Room Rate Card
 
-- STANDARD: 100 per night
-- DELUXE: 150 per night
-- SUITE: 250 per night
+- STANDARD: 2000 per night
+- DELUXE: 3500 per night
+- SUITE: 4500 per night
 
 ### 10.3 Default Demo Credentials
 

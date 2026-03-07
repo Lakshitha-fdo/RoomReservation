@@ -64,9 +64,9 @@ The UI performs basic formatting checks, while server-side rules are authoritati
 - `total = nights * rate`
 
 Rates:
-- STANDARD = 100
-- DELUXE = 150
-- SUITE = 250
+- STANDARD = 2000
+- DELUXE = 3500
+- SUITE = 4500
 
 ## 7. Security Assumptions
 
