@@ -2,12 +2,16 @@
 
 This project is a Java implementation of an Online Room Reservation System for **Ocean View Resort**.
 
-Technology choices:
-- Core Java 17+
+## Technology Choices
+
+- Core Java **17 / 21 LTS**
 - Swing (desktop UI)
 - JDBC with SQLite (data storage)
 - Built-in `com.sun.net.httpserver.HttpServer` (REST-like web services)
 - JUnit 5 (automated testing)
+
+> **Note:** This project is tested with **JDK 17 and JDK 21 (LTS versions)**.  
+> Using **JDK 25 or newer may cause Maven test failures** due to compatibility issues with certain testing plugins.
  
 ## Features
 
