@@ -1,4 +1,4 @@
-﻿<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -40,6 +40,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <!-- Prevent forking issues on JDK 21 -->
+                    <forkCount>0</forkCount>
+                    
+                    <!-- JUnit 5 provider -->
+                    <providers>
+                        <provider>
+                            <name>junit-platform</name>
+                        </provider>
+                    </providers>
+                    
+                    <!-- Include default JUnit 5 test patterns -->
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                        <include>**/*TestCase.java</include>
+                    </includes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
