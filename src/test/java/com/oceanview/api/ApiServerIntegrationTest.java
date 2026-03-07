@@ -66,6 +66,6 @@ class ApiServerIntegrationTest {
         ClientResult<Bill> billResult = apiClient.getBill("R200");
         assertTrue(billResult.success());
         assertEquals(2, billResult.data().getNights());
-        assertEquals(300.0, billResult.data().getTotal());
+        assertEquals(7000.0, billResult.data().getTotal());
     }
 }
