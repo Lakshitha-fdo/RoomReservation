@@ -1,6 +1,7 @@
 package com.oceanview.config;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,6 +42,12 @@ public final class DatabaseConnectionManager {
     }
 
     private void initializeSchema() {
+        
+        File dbFolder = new File("data");
+        if (!dbFolder.exists()) {
+            dbFolder.mkdirs();
+        }
+
         String sql = loadSchemaSql();
         String[] statements = sql.split(";");
 
