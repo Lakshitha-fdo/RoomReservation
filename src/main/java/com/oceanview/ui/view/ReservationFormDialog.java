@@ -39,17 +39,17 @@ public class ReservationFormDialog extends JDialog {
         JTextField addressField = new JTextField();
         JTextField contactField = new JTextField();
         JComboBox<RoomType> roomTypeCombo = new JComboBox<>(RoomType.values());
-        JTextField checkInField = new JTextField(today.toString());
-        JTextField checkOutField = new JTextField(tomorrow.toString());
-        UiTheme.styleTextField(reservationIdField);
+        DatePickerField checkInField = new DatePickerField(today);
+        DatePickerField checkOutField = new DatePickerField(tomorrow);
+        UiTheme.styleReadOnlyField(reservationIdField);
         UiTheme.styleTextField(guestNameField);
         UiTheme.styleTextField(addressField);
         UiTheme.styleTextField(contactField);
-        UiTheme.styleTextField(checkInField);
-        UiTheme.styleTextField(checkOutField);
         UiTheme.styleCombo(roomTypeCombo);
+        loadNextReservationId(reservationController, reservationIdField);
 
         JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6, 6, 6, 6);
         gbc.anchor = GridBagConstraints.WEST;
@@ -60,8 +60,8 @@ public class ReservationFormDialog extends JDialog {
         addRow(form, gbc, 2, "Address", addressField);
         addRow(form, gbc, 3, "Contact Number", contactField);
         addRow(form, gbc, 4, "Room Type", roomTypeCombo);
-        addRow(form, gbc, 5, "Check-in (YYYY-MM-DD)", checkInField);
-        addRow(form, gbc, 6, "Check-out (YYYY-MM-DD)", checkOutField);
+        addRow(form, gbc, 5, "Check-in Date", checkInField);
+        addRow(form, gbc, 6, "Check-out Date", checkOutField);
 
         JButton saveButton = new JButton("Save Reservation");
         JButton closeButton = new JButton("Cancel");
@@ -76,29 +76,36 @@ public class ReservationFormDialog extends JDialog {
                         addressField.getText().trim(),
                         contactField.getText().trim(),
                         (RoomType) roomTypeCombo.getSelectedItem(),
-                        LocalDate.parse(checkInField.getText().trim()),
-                        LocalDate.parse(checkOutField.getText().trim()));
+                        checkInField.getDate(),
+                        checkOutField.getDate());
 
                 ClientResult<Void> result = reservationController.addReservation(reservation);
                 if (result.success()) {
                     JOptionPane.showMessageDialog(this, result.message(), "Success", JOptionPane.INFORMATION_MESSAGE);
                     dispose();
                 } else {
+                    loadNextReservationId(reservationController, reservationIdField);
                     JOptionPane.showMessageDialog(this, result.message(), "Validation Error", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid input. Use format YYYY-MM-DD for dates.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid reservation details.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         closeButton.addActionListener(e -> dispose());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setOpaque(false);
         buttonPanel.add(closeButton);
         buttonPanel.add(saveButton);
 
         container.add(form, BorderLayout.CENTER);
         container.add(buttonPanel, BorderLayout.SOUTH);
         add(container);
+    }
+
+    private void loadNextReservationId(ReservationController reservationController, JTextField reservationIdField) {
+        ClientResult<String> result = reservationController.getNextReservationId();
+        reservationIdField.setText(result.success() ? result.data() : "1");
     }
 
     private void addRow(JPanel panel, GridBagConstraints gbc, int row, String labelText, java.awt.Component field) {

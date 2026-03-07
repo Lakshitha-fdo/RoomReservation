@@ -2,6 +2,7 @@ package com.oceanview.client;
 
 import com.oceanview.model.Bill;
 import com.oceanview.model.Reservation;
+import com.oceanview.model.ReservationPage;
 import com.oceanview.model.RoomType;
 import com.oceanview.util.SimpleJson;
 
@@ -13,7 +14,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ApiClient {
@@ -52,6 +55,14 @@ public class ApiClient {
         return success ? ClientResult.ok(message, null) : ClientResult.fail(message);
     }
 
+    public ClientResult<String> getNextReservationId() {
+        HttpResponse response = send("GET", "/api/reservations/next-id", null);
+        Map<String, String> payload = SimpleJson.parseObject(response.body());
+        boolean success = Boolean.parseBoolean(payload.getOrDefault("success", "false"));
+        String message = payload.getOrDefault("message", "Unexpected response.");
+        return success ? ClientResult.ok(message, payload.get("reservationId")) : ClientResult.fail(message);
+    }
+
     public ClientResult<Reservation> getReservation(String reservationId) {
         String encodedId = URLEncoder.encode(reservationId, StandardCharsets.UTF_8);
         HttpResponse response = send("GET", "/api/reservations/" + encodedId, null);
@@ -71,6 +82,53 @@ public class ApiClient {
                 LocalDate.parse(payload.get("checkOutDate")));
 
         return ClientResult.ok(payload.getOrDefault("message", "Reservation found."), reservation);
+    }
+
+    public ClientResult<ReservationPage> getReservations(String searchTerm, int page, int pageSize) {
+        String encodedSearch = URLEncoder.encode(searchTerm == null ? "" : searchTerm, StandardCharsets.UTF_8);
+        HttpResponse response = send("GET", "/api/reservations?search=" + encodedSearch + "&page=" + page + "&pageSize=" + pageSize, null);
+        Map<String, String> payload = SimpleJson.parseObject(response.body());
+        boolean success = Boolean.parseBoolean(payload.getOrDefault("success", "false"));
+        if (!success) {
+            return ClientResult.fail(payload.getOrDefault("message", "Could not load reservations."));
+        }
+
+        List<Reservation> reservations = new ArrayList<>();
+        for (Map<String, String> reservationPayload : SimpleJson.parseObjectArray(payload.get("reservations"))) {
+            reservations.add(new Reservation(
+                    reservationPayload.get("reservationId"),
+                    reservationPayload.get("guestName"),
+                    reservationPayload.get("address"),
+                    reservationPayload.get("contactNumber"),
+                    RoomType.from(reservationPayload.get("roomType")),
+                    LocalDate.parse(reservationPayload.get("checkInDate")),
+                    LocalDate.parse(reservationPayload.get("checkOutDate"))));
+        }
+
+        ReservationPage reservationPage = new ReservationPage(
+                reservations,
+                Integer.parseInt(payload.getOrDefault("page", String.valueOf(page))),
+                Integer.parseInt(payload.getOrDefault("pageSize", String.valueOf(pageSize))),
+                Integer.parseInt(payload.getOrDefault("totalItems", "0")));
+
+        return ClientResult.ok(payload.getOrDefault("message", "Reservations loaded."), reservationPage);
+    }
+
+    public ClientResult<Void> updateReservation(Reservation reservation) {
+        Map<String, Object> request = new LinkedHashMap<>();
+        request.put("guestName", reservation.getGuestName());
+        request.put("address", reservation.getAddress());
+        request.put("contactNumber", reservation.getContactNumber());
+        request.put("roomType", reservation.getRoomType().name());
+        request.put("checkInDate", reservation.getCheckInDate().toString());
+        request.put("checkOutDate", reservation.getCheckOutDate().toString());
+
+        String encodedId = URLEncoder.encode(reservation.getReservationId(), StandardCharsets.UTF_8);
+        HttpResponse response = send("PUT", "/api/reservations/" + encodedId, SimpleJson.toJson(request));
+        Map<String, String> payload = SimpleJson.parseObject(response.body());
+        boolean success = Boolean.parseBoolean(payload.getOrDefault("success", "false"));
+        String message = payload.getOrDefault("message", "Unexpected response.");
+        return success ? ClientResult.ok(message, null) : ClientResult.fail(message);
     }
 
     public ClientResult<Bill> getBill(String reservationId) {

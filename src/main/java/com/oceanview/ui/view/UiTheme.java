@@ -4,6 +4,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -24,12 +26,20 @@ public final class UiTheme {
     public static final Font BODY_FONT = new Font("Segoe UI", Font.PLAIN, 14);
     public static final Font LABEL_FONT = new Font("Segoe UI", Font.PLAIN, 13);
     public static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 13);
+    public static final Font SUBTITLE_FONT = new Font("Segoe UI", Font.PLAIN, 12);
+    public static final Font EMPHASIS_FONT = new Font("Segoe UI", Font.BOLD, 18);
 
     private static final Dimension FIELD_SIZE = new Dimension(290, 32);
     private static final Dimension BUTTON_SIZE = new Dimension(150, 36);
+    private static final Dimension SMALL_BUTTON_SIZE = new Dimension(110, 34);
     private static final Color BUTTON_BG = new Color(15, 76, 129);
     private static final Color BUTTON_BG_HOVER = new Color(10, 58, 99);
     private static final Color BUTTON_TEXT = Color.WHITE;
+    public static final Color PANEL_BG = new Color(247, 250, 252);
+    public static final Color CARD_BG = Color.WHITE;
+    public static final Color BORDER_COLOR = new Color(210, 216, 224);
+    public static final Color MUTED_TEXT = new Color(92, 106, 117);
+    public static final Color SUCCESS_BG = new Color(227, 244, 232);
 
     private UiTheme() {
     }
@@ -51,6 +61,9 @@ public final class UiTheme {
     public static void styleTextField(JTextField field) {
         field.setFont(BODY_FONT);
         field.setPreferredSize(FIELD_SIZE);
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR),
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
     }
 
     public static void styleCombo(JComboBox<?> comboBox) {
@@ -59,9 +72,42 @@ public final class UiTheme {
     }
 
     public static void styleButton(JButton button) {
+        styleButton(button, BUTTON_SIZE);
+    }
+
+    public static void styleSmallButton(JButton button) {
+        styleButton(button, SMALL_BUTTON_SIZE);
+    }
+
+    public static void styleCard(JComponent component) {
+        component.setOpaque(true);
+        component.setBackground(CARD_BG);
+        component.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+    }
+
+    public static void styleTable(JTable table, JScrollPane scrollPane) {
+        table.setFont(BODY_FONT);
+        table.setRowHeight(28);
+        table.setGridColor(BORDER_COLOR);
+        table.setShowVerticalLines(false);
+        table.getTableHeader().setFont(BUTTON_FONT);
+        table.getTableHeader().setBackground(new Color(228, 236, 244));
+        table.getTableHeader().setReorderingAllowed(false);
+        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+    }
+
+    public static void styleReadOnlyField(JTextField field) {
+        styleTextField(field);
+        field.setEditable(false);
+        field.setBackground(PANEL_BG);
+    }
+
+    private static void styleButton(JButton button, Dimension size) {
         button.setUI(new BasicButtonUI());
         button.setFont(BUTTON_FONT);
-        button.setPreferredSize(BUTTON_SIZE);
+        button.setPreferredSize(size);
         button.setFocusPainted(false);
         button.setBackground(BUTTON_BG);
         button.setForeground(BUTTON_TEXT);
@@ -93,6 +139,8 @@ public final class UiTheme {
 
     public static void addPanelPadding(JComponent component) {
         component.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        component.setOpaque(true);
+        component.setBackground(PANEL_BG);
     }
 
     private static final class ButtonHoverListener extends MouseAdapter {

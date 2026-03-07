@@ -5,6 +5,7 @@ import com.oceanview.dao.jdbc.JdbcReservationDao;
 import com.oceanview.dao.jdbc.JdbcUserDao;
 import com.oceanview.model.Bill;
 import com.oceanview.model.Reservation;
+import com.oceanview.model.ReservationPage;
 import com.oceanview.model.RoomType;
 import com.oceanview.model.ServiceResult;
 import com.oceanview.service.AuthService;
@@ -19,9 +20,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -107,14 +111,25 @@ public class ApiServer {
                 return;
             }
 
-            if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/reservations/")) {
-                String reservationId = path.substring("/api/reservations/".length()).trim();
-                handleFind(exchange, reservationId);
+            if ("GET".equalsIgnoreCase(method) && "/api/reservations".equals(path)) {
+                handleList(exchange);
                 return;
             }
 
-            if (("POST".equalsIgnoreCase(method) || "GET".equalsIgnoreCase(method)) && "/api/reservations".equals(path)) {
-                sendJson(exchange, 400, Map.of("success", false, "message", "Reservation number is required in path."));
+            if ("GET".equalsIgnoreCase(method) && "/api/reservations/next-id".equals(path)) {
+                handleNextId(exchange);
+                return;
+            }
+
+            if ("PUT".equalsIgnoreCase(method) && path.startsWith("/api/reservations/")) {
+                String reservationId = path.substring("/api/reservations/".length()).trim();
+                handleUpdate(exchange, reservationId);
+                return;
+            }
+
+            if ("GET".equalsIgnoreCase(method) && path.startsWith("/api/reservations/")) {
+                String reservationId = path.substring("/api/reservations/".length()).trim();
+                handleFind(exchange, reservationId);
                 return;
             }
 
@@ -162,6 +177,72 @@ public class ApiServer {
             response.put("checkInDate", reservation.getCheckInDate().toString());
             response.put("checkOutDate", reservation.getCheckOutDate().toString());
             sendJson(exchange, 200, response);
+        }
+
+        private void handleNextId(HttpExchange exchange) throws IOException {
+            ServiceResult<String> result = reservationService.getNextReservationId();
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("success", result.success());
+            response.put("message", result.message());
+            response.put("reservationId", result.data());
+            sendJson(exchange, 200, response);
+        }
+
+        private void handleList(HttpExchange exchange) throws IOException {
+            Map<String, String> query = parseQuery(exchange.getRequestURI().getRawQuery());
+            int page = parsePositiveInt(query.get("page"), 1);
+            int pageSize = parsePositiveInt(query.get("pageSize"), 8);
+            String search = query.getOrDefault("search", "");
+
+            ServiceResult<ReservationPage> result = reservationService.findReservations(search, page, pageSize);
+            ReservationPage reservationPage = result.data();
+            List<Map<String, Object>> reservations = new ArrayList<>();
+            for (Reservation reservation : reservationPage.getReservations()) {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("reservationId", reservation.getReservationId());
+                item.put("guestName", reservation.getGuestName());
+                item.put("address", reservation.getAddress());
+                item.put("contactNumber", reservation.getContactNumber());
+                item.put("roomType", reservation.getRoomType().name());
+                item.put("checkInDate", reservation.getCheckInDate().toString());
+                item.put("checkOutDate", reservation.getCheckOutDate().toString());
+                reservations.add(item);
+            }
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("success", result.success());
+            response.put("message", result.message());
+            response.put("page", reservationPage.getCurrentPage());
+            response.put("pageSize", reservationPage.getPageSize());
+            response.put("totalItems", reservationPage.getTotalItems());
+            response.put("totalPages", reservationPage.getTotalPages());
+            response.put("reservations", reservations);
+            sendJson(exchange, 200, response);
+        }
+
+        private void handleUpdate(HttpExchange exchange, String reservationId) throws IOException {
+            try {
+                Map<String, String> request = SimpleJson.parseObject(readRequestBody(exchange));
+                Reservation reservation = new Reservation(
+                        reservationId,
+                        request.get("guestName"),
+                        request.get("address"),
+                        request.get("contactNumber"),
+                        RoomType.from(request.get("roomType")),
+                        LocalDate.parse(request.get("checkInDate")),
+                        LocalDate.parse(request.get("checkOutDate")));
+
+                ServiceResult<Void> result = reservationService.updateReservation(reservation);
+                int status = result.success() ? 200 : 400;
+                if ("Reservation not found.".equals(result.message())) {
+                    status = 404;
+                }
+                sendJson(exchange, status, Map.of("success", result.success(), "message", result.message()));
+            } catch (IllegalArgumentException e) {
+                sendJson(exchange, 400, Map.of("success", false, "message", e.getMessage()));
+            } catch (Exception e) {
+                sendJson(exchange, 400, Map.of("success", false, "message", "Invalid request payload."));
+            }
         }
     }
 
@@ -219,6 +300,37 @@ public class ApiServer {
         exchange.sendResponseHeaders(statusCode, bytes.length);
         try (OutputStream outputStream = exchange.getResponseBody()) {
             outputStream.write(bytes);
+        }
+    }
+
+    private static Map<String, String> parseQuery(String rawQuery) {
+        Map<String, String> query = new LinkedHashMap<>();
+        if (rawQuery == null || rawQuery.isBlank()) {
+            return query;
+        }
+
+        String[] pairs = rawQuery.split("&");
+        for (String pair : pairs) {
+            if (pair.isBlank()) {
+                continue;
+            }
+            String[] parts = pair.split("=", 2);
+            String key = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
+            String value = parts.length > 1 ? URLDecoder.decode(parts[1], StandardCharsets.UTF_8) : "";
+            query.put(key, value);
+        }
+        return query;
+    }
+
+    private static int parsePositiveInt(String rawValue, int defaultValue) {
+        if (rawValue == null || rawValue.isBlank()) {
+            return defaultValue;
+        }
+        try {
+            int value = Integer.parseInt(rawValue.trim());
+            return value > 0 ? value : defaultValue;
+        } catch (NumberFormatException e) {
+            return defaultValue;
         }
     }
 }
